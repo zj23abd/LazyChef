@@ -1,78 +1,65 @@
-/* General body styles */
+/* --- Body & Header --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fef9f4;
     margin: 0;
     padding: 0;
-    background: #fff6f0;
     color: #333;
-    transition: background 0.3s, color 0.3s;
 }
 
-/* Dark mode */
-body.dark {
-    background: #1c1c1c;
-    color: #f5f5f5;
-}
-
-/* Header */
 header {
+    background-color: #ff6f61;
+    color: white;
     text-align: center;
-    padding: 30px 20px;
-    background: linear-gradient(to right, #ff6f61, #ffb347);
-    color: #fff;
+    padding: 25px 10px;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 header h1 {
     margin: 0;
-    font-size: 3rem;
-    letter-spacing: 2px;
-    animation: bounce 1.5s infinite;
+    font-size: 2.5rem;
 }
 
 header p {
-    margin: 5px 0 20px;
-    font-size: 1.2rem;
+    margin: 5px 0 0 0;
+    font-style: italic;
 }
 
-/* Search input */
+/* --- Search Section --- */
+#searchSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 25px 10px;
+    gap: 10px;
+}
+
 #searchInput {
-    width: 60%;
-    max-width: 500px;
-    padding: 10px 15px;
-    border-radius: 25px;
-    border: none;
+    padding: 12px;
+    width: 250px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
     font-size: 1rem;
-    margin-bottom: 10px;
-    outline: none;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
 }
 
-#searchInput:focus {
-    transform: scale(1.05);
-}
-
-/* Buttons */
-button {
-    padding: 10px 20px;
-    margin: 5px;
+#searchBtn, #randomBtn {
+    padding: 12px 20px;
     border: none;
-    border-radius: 25px;
+    border-radius: 8px;
+    background-color: #ff6f61;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
-    font-size: 1rem;
-    transition: transform 0.2s, background 0.3s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
-button:hover {
-    transform: scale(1.1);
-    background: #ff9e80;
+#searchBtn:hover, #randomBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
-/* Recipe container */
+/* --- Recipe Container & Cards --- */
 #recipeContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -80,58 +67,75 @@ button:hover {
     padding: 20px;
 }
 
-/* Recipe card */
 .recipeCard {
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    background-color: #fff;
+    border-radius: 12px;
     overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .recipeCard:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 20px rgba(0,0,0,0.25);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
 }
 
-/* Recipe image */
 .recipeCard img {
     width: 100%;
     height: 180px;
     object-fit: cover;
 }
 
-/* Recipe info */
 .recipeInfo {
-    padding: 15px;
-    flex: 1;
+    padding: 12px;
 }
 
 .recipeInfo h3 {
-    margin: 0 0 10px;
-    font-size: 1.2rem;
+    margin: 0 0 8px 0;
+    color: #ff6f61;
 }
 
 .recipeInfo p {
     margin: 0;
     font-size: 0.9rem;
-    color: #666;
 }
 
-/* Dark mode card */
-body.dark .recipeCard {
-    background: #2a2a2a;
+/* --- Modal --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background-color: rgba(0,0,0,0.6);
 }
 
-body.dark .recipeInfo p {
-    color: #ddd;
+.modalContent {
+    background-color: #fff;
+    margin: auto;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
 }
 
-/* Bounce animation */
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.closeBtn {
+    color: #333;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.closeBtn:hover {
+    color: #ff6f61;
+}
+
+ul, ol {
+    padding-left: 20px;
 }

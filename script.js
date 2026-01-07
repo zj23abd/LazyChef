@@ -1,60 +1,60 @@
-// --------- SET YOUR API KEY HERE ----------
-const API_KEY = "a1727a55ca294656a055d1ea61d68425"; // Replace with your Spoonacular API key
-
-const searchInput = document.getElementById("searchInput");
+// --- DOM Elements ---
 const recipeContainer = document.getElementById("recipeContainer");
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
 const randomBtn = document.getElementById("randomBtn");
-const darkModeBtn = document.getElementById("darkModeBtn");
 
-// Function to fetch recipes based on keywords (comma-separated)
-async function fetchRecipes() {
-    let query = searchInput.value.trim();
-    if (!query) {
-        alert("Please enter some keywords!");
-        return;
-    }
+// --- Modal Elements ---
+const modal = document.getElementById("recipeModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalInfo = document.getElementById("modalInfo");
+const modalIngredients = document.getElementById("modalIngredients");
+const modalInstructions = document.getElementById("modalInstructions");
+const closeBtn = document.querySelector(".closeBtn");
 
-    query = query.split(",").map(k => k.trim()).join(",");
+closeBtn.addEventListener("click", () => modal.style.display = "none");
+window.addEventListener("click", e => { if(e.target === modal) modal.style.display = "none"; });
 
+// --- Spoonacular API Key ---
+const API_KEY = "a1727a55ca294656a055d1ea61d68425";
+
+// --- Fetch Recipes by Keywords ---
+async function fetchRecipes(query) {
     try {
-        const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=12&addRecipeInformation=true&apiKey=${API_KEY}`);
+        // Replace commas with '+' for multiple keywords
+        const formattedQuery = query.split(",").map(k => k.trim()).join("+");
+        const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${formattedQuery}&addRecipeInformation=true&number=12&apiKey=${API_KEY}`);
         const data = await response.json();
-
-        if (!data.results || data.results.length === 0) {
-            recipeContainer.innerHTML = "<p>No recipes found. Try different keywords.</p>";
-            return;
-        }
-
-        displayRecipes(data.results);
-    } catch (error) {
-        recipeContainer.innerHTML = "<p>Error loading recipes. Try again later.</p>";
-        console.error(error);
+        if (data.results) displayRecipes(data.results);
+        else recipeContainer.innerHTML = "<p>No recipes found.</p>";
+    } catch (err) {
+        console.error(err);
+        recipeContainer.innerHTML = "<p>Error loading recipes.</p>";
     }
 }
 
-// Function to fetch random recipes
+// --- Fetch Random Recipes ---
 async function fetchRandomRecipes() {
     try {
         const response = await fetch(`https://api.spoonacular.com/recipes/random?number=12&apiKey=${API_KEY}`);
         const data = await response.json();
-        displayRecipes(data.recipes);
-    } catch (error) {
-        recipeContainer.innerHTML = "<p>Error loading random recipes. Try again later.</p>";
-        console.error(error);
+        if (data.recipes) displayRecipes(data.recipes);
+        else recipeContainer.innerHTML = "<p>No recipes found.</p>";
+    } catch(err) {
+        console.error(err);
+        recipeContainer.innerHTML = "<p>Error loading recipes.</p>";
     }
 }
 
-// Function to display recipes
+// --- Display Recipes on Page ---
 function displayRecipes(recipes) {
     recipeContainer.innerHTML = "";
     recipes.forEach(recipe => {
         const card = document.createElement("div");
-        card.classList.add("recipeCard");
+        card.className = "recipeCard";
 
-        // Use readyInMinutes fallback
         const prepTime = recipe.readyInMinutes ? `${recipe.readyInMinutes} mins` : "N/A";
 
-        // Create card HTML
         card.innerHTML = `
             <img src="${recipe.image}" alt="${recipe.title}">
             <div class="recipeInfo">
@@ -63,25 +63,47 @@ function displayRecipes(recipes) {
             </div>
         `;
 
-        // Make card clickable, open full recipe in new tab
+        // --- Modal Event ---
         card.addEventListener("click", () => {
-            // Some recipes have sourceUrl, some use Spoonacular page
-            const recipeUrl = recipe.sourceUrl || `https://spoonacular.com/recipes/${recipe.title.replace(/\s+/g, "-")}-${recipe.id}`;
-            window.open(recipeUrl, "_blank");
+            modalTitle.textContent = recipe.title;
+            modalInfo.textContent = `Ready in ${prepTime} | Servings: ${recipe.servings || "N/A"}`;
+
+            // Ingredients
+            modalIngredients.innerHTML = "";
+            if (recipe.extendedIngredients) {
+                recipe.extendedIngredients.forEach(ing => {
+                    const li = document.createElement("li");
+                    li.textContent = ing.original;
+                    modalIngredients.appendChild(li);
+                });
+            }
+
+            // Instructions
+            modalInstructions.innerHTML = "";
+            if (recipe.analyzedInstructions && recipe.analyzedInstructions.length > 0) {
+                recipe.analyzedInstructions[0].steps.forEach(step => {
+                    const li = document.createElement("li");
+                    li.textContent = step.step;
+                    modalInstructions.appendChild(li);
+                });
+            } else {
+                modalInstructions.innerHTML = "<li>Instructions not available.</li>";
+            }
+
+            modal.style.display = "block";
         });
 
         recipeContainer.appendChild(card);
     });
 }
 
-// Dark mode toggle
-darkModeBtn.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-});
-
-// Event listeners
-searchInput.addEventListener("keypress", e => {
-    if (e.key === "Enter") fetchRecipes();
+// --- Event Listeners ---
+searchBtn.addEventListener("click", () => {
+    const query = searchInput.value.trim();
+    if(query) fetchRecipes(query);
 });
 
 randomBtn.addEventListener("click", fetchRandomRecipes);
+
+// --- Initial Load ---
+fetchRandomRecipes();
