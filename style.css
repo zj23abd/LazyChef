@@ -52,6 +52,7 @@ header p {
     color: white;
     font-weight: bold;
     cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 #searchBtn:hover, #randomBtn:hover {
@@ -59,7 +60,7 @@ header p {
     box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
-/* --- Recipe Container & Cards --- */
+/* --- Recipe Cards --- */
 #recipeContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -73,7 +74,12 @@ header p {
     overflow: hidden;
     cursor: pointer;
     box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.3s, box-shadow 0.3s, opacity 0.5s;
+    opacity: 0;
+}
+
+.recipeCard.show {
+    opacity: 1;
 }
 
 .recipeCard:hover {
@@ -113,6 +119,12 @@ header p {
     height: 100%;
     overflow-y: auto;
     background-color: rgba(0,0,0,0.6);
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
 }
 
 .modalContent {
@@ -122,6 +134,12 @@ header p {
     border-radius: 12px;
     width: 90%;
     max-width: 700px;
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from {transform: translateY(-20px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
 }
 
 .closeBtn {

@@ -3,28 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LazyChef - Quick Recipes for those who can't be bothered</title>
-    <!-- Link CSS -->
+    <title>LazyChef</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- HEADER -->
+
+    <!-- Header -->
     <header>
         <h1>LazyChef</h1>
-        <p>Quick Recipes, No Stories.</p>
-        <!-- SEARCH BAR -->
-        <input type="text" id="searchInput" placeholder="Enter ingredients or keywords (comma-separated)">
-        <!-- BUTTONS -->
-        <button id="randomBtn">Random Recipes</button>
-        <button id="darkModeBtn">Toggle Dark Mode</button>
+        <p>Quick recipes for those who can't be bothered</p>
     </header>
 
-    <!-- RECIPE CONTAINER -->
-    <div id="recipeContainer">
-        <!-- Recipes will be displayed here dynamically -->
+    <!-- Search Section -->
+    <section id="searchSection">
+        <input type="text" id="searchInput" placeholder="Enter keywords separated by commas">
+        <button id="searchBtn">Search</button>
+        <button id="randomBtn">Random Recipes</button>
+    </section>
+
+    <!-- Recipes Grid -->
+    <section id="recipeContainer"></section>
+
+    <!-- Modal -->
+    <div id="recipeModal" class="modal">
+        <div class="modalContent">
+            <span class="closeBtn">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <p id="modalInfo"></p>
+            <h3>Ingredients:</h3>
+            <ul id="modalIngredients"></ul>
+            <h3>Instructions:</h3>
+            <ol id="modalInstructions"></ol>
+        </div>
     </div>
 
-    <!-- LINK JAVASCRIPT -->
     <script src="script.js"></script>
 </body>
 </html>
