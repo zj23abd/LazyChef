@@ -1,5 +1,5 @@
 // --------- SET YOUR API KEY HERE ----------
-const API_KEY = "a1727a55ca294656a055d1ea61d68425"; // Replace with Spoonacular API key
+const API_KEY = "YOUR_API_KEY"; // Replace with your Spoonacular API key
 
 const searchInput = document.getElementById("searchInput");
 const recipeContainer = document.getElementById("recipeContainer");
@@ -14,11 +14,10 @@ async function fetchRecipes() {
         return;
     }
 
-    // Replace spaces and split multiple keywords by comma
     query = query.split(",").map(k => k.trim()).join(",");
 
     try {
-        const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=12&apiKey=${API_KEY}`);
+        const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=12&addRecipeInformation=true&apiKey=${API_KEY}`);
         const data = await response.json();
 
         if (!data.results || data.results.length === 0) {
@@ -52,13 +51,24 @@ function displayRecipes(recipes) {
         const card = document.createElement("div");
         card.classList.add("recipeCard");
 
+        // Use readyInMinutes fallback
+        const prepTime = recipe.readyInMinutes ? `${recipe.readyInMinutes} mins` : "N/A";
+
+        // Create card HTML
         card.innerHTML = `
             <img src="${recipe.image}" alt="${recipe.title}">
             <div class="recipeInfo">
                 <h3>${recipe.title}</h3>
-                <p>Ready in ${recipe.readyInMinutes || "N/A"} mins | Servings: ${recipe.servings || "N/A"}</p>
+                <p>Ready in ${prepTime} | Servings: ${recipe.servings || "N/A"}</p>
             </div>
         `;
+
+        // Make card clickable, open full recipe in new tab
+        card.addEventListener("click", () => {
+            // Some recipes have sourceUrl, some use Spoonacular page
+            const recipeUrl = recipe.sourceUrl || `https://spoonacular.com/recipes/${recipe.title.replace(/\s+/g, "-")}-${recipe.id}`;
+            window.open(recipeUrl, "_blank");
+        });
 
         recipeContainer.appendChild(card);
     });
