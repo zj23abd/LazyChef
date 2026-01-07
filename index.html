@@ -2,17 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>UniEats</title>
+    <title>LazyChef | Quick Recipes</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>UniEats</h1>
-    <p>Quick recipes for students who don’t want to scroll.</p>
+    <header>
+        <h1>LazyChef</h1>
+        <p>Quick recipes. No stories. No scrolling.</p>
+    </header>
 
-    <input type="text" id="search" placeholder="Search recipe or ingredient...">
+    <main>
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search recipes..."
+        >
 
-    <div id="recipes"></div>
+        <div id="recipeContainer"></div>
+    </main>
 
     <script src="script.js"></script>
 </body>
