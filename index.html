@@ -2,24 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LazyChef | Quick Recipes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LazyChef - Quick Recipes for those who can't be bothered</title>
+    <!-- Link CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- HEADER -->
     <header>
-        <h1>LazyChef 🍳</h1>
-        <p>Quick recipes for people who can't be bothered</p>
-        <input 
-            type="text" 
-            id="searchInput" 
-            placeholder="e.g. chicken, pasta, garlic">
+        <h1>LazyChef</h1>
+        <p>Quick Recipes, No Stories.</p>
+        <!-- SEARCH BAR -->
+        <input type="text" id="searchInput" placeholder="Enter ingredients or keywords (comma-separated)">
+        <!-- BUTTONS -->
+        <button id="randomBtn">Random Recipes</button>
+        <button id="darkModeBtn">Toggle Dark Mode</button>
     </header>
 
-    <main id="recipeContainer"></main>
+    <!-- RECIPE CONTAINER -->
+    <div id="recipeContainer">
+        <!-- Recipes will be displayed here dynamically -->
+    </div>
 
-    <footer>
-        <p>Built for busy & lazy cooks</p>
-    </footer>
+    <!-- LINK JAVASCRIPT -->
+    <script src="script.js"></script>
 </body>
-
 </html>
