@@ -691,7 +691,7 @@ const localRecipes = [
 
 // --- Pagination ---
 let currentPage = 1;
-const recipesPerPage = 8;
+const recipesPerPage = 6;
 let currentRecipes = [];
 let currentKeywords = []; // <-- new global for search keywords
 
