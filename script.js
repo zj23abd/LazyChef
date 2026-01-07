@@ -1,76 +1,77 @@
-// LazyChef JavaScript
+// --------- SET YOUR API KEY HERE ----------
+const API_KEY = "a1727a55ca294656a055d1ea61d68425"; // Replace with Spoonacular API key
 
-// Grab DOM elements
-const searchInput = document.getElementById('searchInput');
-const recipeContainer = document.getElementById('recipeContainer');
-const randomBtn = document.getElementById('randomBtn');
-const darkModeBtn = document.getElementById('darkModeBtn');
+const searchInput = document.getElementById("searchInput");
+const recipeContainer = document.getElementById("recipeContainer");
+const randomBtn = document.getElementById("randomBtn");
+const darkModeBtn = document.getElementById("darkModeBtn");
 
-// ---- SEARCH FUNCTIONALITY ----
-// Trigger search when Enter is pressed
-searchInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const query = searchInput.value;
-        fetchRecipes(query);
+// Function to fetch recipes based on keywords (comma-separated)
+async function fetchRecipes() {
+    let query = searchInput.value.trim();
+    if (!query) {
+        alert("Please enter some keywords!");
+        return;
     }
-});
 
-// Fetch recipes from Spoonacular API using multiple keywords
-async function fetchRecipes(query) {
-    // Show loader while fetching
-    recipeContainer.innerHTML = '<div class="loader"></div>';
-
-    // Allow multiple comma-separated keywords
-    const keywords = query.split(',').map(k => k.trim()).join(',');
+    // Replace spaces and split multiple keywords by comma
+    query = query.split(",").map(k => k.trim()).join(",");
 
     try {
-        // Replace 'YOUR_API_KEY' with your Spoonacular API key
-        const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${keywords}&number=10&apiKey=a1727a55ca294656a055d1ea61d68425`);
+        const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=12&apiKey=${API_KEY}`);
         const data = await response.json();
 
         if (!data.results || data.results.length === 0) {
-            recipeContainer.innerHTML = '<p>No recipes found 😢</p>';
+            recipeContainer.innerHTML = "<p>No recipes found. Try different keywords.</p>";
             return;
         }
 
         displayRecipes(data.results);
-    } catch (err) {
-        recipeContainer.innerHTML = '<p>Error fetching recipes 😢</p>';
-        console.error(err);
+    } catch (error) {
+        recipeContainer.innerHTML = "<p>Error loading recipes. Try again later.</p>";
+        console.error(error);
     }
 }
 
-// ---- DISPLAY RECIPES ----
+// Function to fetch random recipes
+async function fetchRandomRecipes() {
+    try {
+        const response = await fetch(`https://api.spoonacular.com/recipes/random?number=12&apiKey=${API_KEY}`);
+        const data = await response.json();
+        displayRecipes(data.recipes);
+    } catch (error) {
+        recipeContainer.innerHTML = "<p>Error loading random recipes. Try again later.</p>";
+        console.error(error);
+    }
+}
+
+// Function to display recipes
 function displayRecipes(recipes) {
-    recipeContainer.innerHTML = ''; // Clear previous recipes
+    recipeContainer.innerHTML = "";
     recipes.forEach(recipe => {
-        const card = document.createElement('div');
-        card.className = 'recipe';
+        const card = document.createElement("div");
+        card.classList.add("recipeCard");
+
         card.innerHTML = `
-            <h3>${recipe.title}</h3>
             <img src="${recipe.image}" alt="${recipe.title}">
-            <p>Ready in ${recipe.readyInMinutes || 'N/A'} mins</p>
-            <a href="https://spoonacular.com/recipes/${recipe.title.replaceAll(' ', '-')}-${recipe.id}" target="_blank">View Recipe</a>
+            <div class="recipeInfo">
+                <h3>${recipe.title}</h3>
+                <p>Ready in ${recipe.readyInMinutes || "N/A"} mins | Servings: ${recipe.servings || "N/A"}</p>
+            </div>
         `;
+
         recipeContainer.appendChild(card);
     });
 }
 
-// ---- RANDOM RECIPE BUTTON ----
-randomBtn.addEventListener('click', async () => {
-    recipeContainer.innerHTML = '<div class="loader"></div>';
-
-    try {
-        const response = await fetch(`https://api.spoonacular.com/recipes/random?number=5&apiKey=YOUR_API_KEY`);
-        const data = await response.json();
-        displayRecipes(data.recipes);
-    } catch (err) {
-        recipeContainer.innerHTML = '<p>Error fetching random recipes 😢</p>';
-        console.error(err);
-    }
+// Dark mode toggle
+darkModeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
 });
 
-// ---- DARK MODE TOGGLE ----
-darkModeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
+// Event listeners
+searchInput.addEventListener("keypress", e => {
+    if (e.key === "Enter") fetchRecipes();
 });
+
+randomBtn.addEventListener("click", fetchRandomRecipes);
