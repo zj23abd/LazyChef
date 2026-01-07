@@ -1,65 +1,47 @@
-const recipes = [
-    {
-        name: "Chicken Pasta",
-        ingredients: ["Chicken", "Pasta", "Garlic", "Oil"],
-        steps: [
-            "Boil pasta",
-            "Cook chicken",
-            "Mix everything"
-        ]
-    },
-    {
-        name: "Egg Fried Rice",
-        ingredients: ["Rice", "Eggs", "Oil", "Salt"],
-        steps: [
-            "Cook rice",
-            "Scramble eggs",
-            "Mix together"
-        ]
-    },
-    {
-        name: "Cheese Omelette",
-        ingredients: ["Eggs", "Cheese", "Butter"],
-        steps: [
-            "Beat eggs",
-            "Cook eggs",
-            "Add cheese"
-        ]
-    }
-];
-
 const recipeContainer = document.getElementById("recipeContainer");
 const searchInput = document.getElementById("searchInput");
 
-function displayRecipes(recipeList) {
+const API_KEY = "a1727a55ca294656a055d1ea61d68425";
+
+async function fetchRecipes(keywords) {
+    const query = keywords.join(",");
+    const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=5&addRecipeInformation=true&apiKey=${API_KEY}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+    displayRecipes(data.results);
+}
+
+function displayRecipes(recipes) {
     recipeContainer.innerHTML = "";
 
-    recipeList.forEach(recipe => {
+    if (!recipes || recipes.length === 0) {
+        recipeContainer.innerHTML = "<p>No recipes found.</p>";
+        return;
+    }
+
+    recipes.forEach(recipe => {
         const div = document.createElement("div");
         div.className = "recipe";
 
         div.innerHTML = `
-            <h3>${recipe.name}</h3>
-            <strong>Ingredients:</strong>
-            <ul>
-                ${recipe.ingredients.map(i => `<li>${i}</li>`).join("")}
-            </ul>
-            <strong>Steps:</strong>
-            <ol>
-                ${recipe.steps.map(s => `<li>${s}</li>`).join("")}
-            </ol>
+            <h3>${recipe.title}</h3>
+            <p><strong>Ready in:</strong> ${recipe.readyInMinutes} minutes</p>
+            <img src="${recipe.image}" width="100%" alt="${recipe.title}">
+            <a href="${recipe.sourceUrl}" target="_blank">View full recipe</a>
         `;
 
         recipeContainer.appendChild(div);
     });
 }
 
-searchInput.addEventListener("input", () => {
-    const value = searchInput.value.toLowerCase();
-    const filtered = recipes.filter(recipe =>
-        recipe.name.toLowerCase().includes(value)
-    );
-    displayRecipes(filtered);
-});
+searchInput.addEventListener("change", () => {
+    const keywords = searchInput.value
+        .split(",")
+        .map(k => k.trim())
+        .filter(k => k.length > 0);
 
-displayRecipes(recipes);
+    if (keywords.length > 0) {
+        fetchRecipes(keywords);
+    }
+});
