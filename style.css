@@ -1,50 +1,88 @@
 * {
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 body {
     margin: 0;
-    background: #f9f9f9;
-    color: #222;
+    background: #f7f7f7;
+    color: #333;
 }
 
 header {
+    background: linear-gradient(135deg, #ff9f1c, #ffbf69);
+    padding: 40px 20px;
     text-align: center;
-    padding: 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #ddd;
 }
 
 header h1 {
     margin: 0;
+    font-size: 3rem;
 }
 
-main {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 0 15px;
+header p {
+    margin: 10px 0 25px;
+    font-size: 1.1rem;
+    opacity: 0.9;
 }
 
 #searchInput {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    margin-bottom: 20px;
+    width: 90%;
+    max-width: 500px;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    outline: none;
+}
+
+main {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 30px;
 }
 
 .recipe {
     background: white;
+    border-radius: 15px;
     padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recipe:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
 }
 
 .recipe h3 {
     margin-top: 0;
 }
 
-.recipe ul {
-    padding-left: 20px;
+.recipe img {
+    border-radius: 12px;
+    margin: 10px 0;
+}
+
+.recipe a {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: white;
+    background: #ff9f1c;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.recipe a:hover {
+    background: #ff8500;
+}
+
+footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 0.8rem;
+    opacity: 0.6;
 }
