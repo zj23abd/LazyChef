@@ -693,8 +693,7 @@ function renderPagination(totalRecipes, page) {
     if (!paginationContainer) {
         paginationContainer = document.createElement("div");
         paginationContainer.id = "paginationContainer";
-        paginationContainer.style.textAlign = "center";
-        paginationContainer.style.margin    = "20px 0";
+        paginationContainer.style.cssText = "text-align:center;margin:20px 0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;";
         recipeContainer.parentNode.insertBefore(paginationContainer, recipeContainer.nextSibling);
     }
 
@@ -702,26 +701,62 @@ function renderPagination(totalRecipes, page) {
     paginationContainer.innerHTML = "";
     if (totalPages <= 1) return;
 
-    if (page > 1) {
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "Previous";
-        prevBtn.className   = "paginationBtn";
-        prevBtn.onclick = () => { currentPage--; displayPage(currentPage); };
-        paginationContainer.appendChild(prevBtn);
-    }
+    // Previous button
+    const prevBtn = document.createElement("button");
+    prevBtn.textContent = "← Prev";
+    prevBtn.className   = "paginationBtn";
+    prevBtn.disabled    = page <= 1;
+    prevBtn.style.opacity = page <= 1 ? "0.4" : "1";
+    prevBtn.style.cursor  = page <= 1 ? "default" : "pointer";
+    prevBtn.onclick = () => {
+        if (currentPage > 1) { currentPage--; displayPage(currentPage); }
+    };
+    paginationContainer.appendChild(prevBtn);
 
-    // Page number indicator
-    const pageInfo = document.createElement("span");
-    pageInfo.textContent = ` Page ${page} of ${totalPages} `;
-    pageInfo.style.cssText = "font-weight:600;color:#ff6f61;margin:0 8px;";
-    paginationContainer.appendChild(pageInfo);
+    // Page input + total label
+    const pageLabel = document.createElement("span");
+    pageLabel.style.cssText = "display:flex;align-items:center;gap:6px;font-weight:600;color:#555;font-size:0.95rem;";
 
-    if (page < totalPages) {
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "Next";
-        nextBtn.className   = "paginationBtn";
-        nextBtn.onclick = () => { currentPage++; displayPage(currentPage); };
-        paginationContainer.appendChild(nextBtn);
+    const pageInput = document.createElement("input");
+    pageInput.type  = "number";
+    pageInput.value = page;
+    pageInput.min   = 1;
+    pageInput.max   = totalPages;
+    pageInput.style.cssText = "width:52px;padding:6px 8px;border:2px solid #ff6f61;border-radius:10px;font-size:0.95rem;font-weight:700;color:#ff6f61;text-align:center;outline:none;background:#fff8f2;";
+
+    pageInput.addEventListener("keypress", e => {
+        if (e.key === "Enter") goToPage(parseInt(pageInput.value), totalPages);
+    });
+    pageInput.addEventListener("blur", () => {
+        goToPage(parseInt(pageInput.value), totalPages);
+    });
+
+    const ofLabel = document.createElement("span");
+    ofLabel.textContent = `of ${totalPages}`;
+
+    pageLabel.appendChild(pageInput);
+    pageLabel.appendChild(ofLabel);
+    paginationContainer.appendChild(pageLabel);
+
+    // Next button
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = "Next →";
+    nextBtn.className   = "paginationBtn";
+    nextBtn.disabled    = page >= totalPages;
+    nextBtn.style.opacity = page >= totalPages ? "0.4" : "1";
+    nextBtn.style.cursor  = page >= totalPages ? "default" : "pointer";
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) { currentPage++; displayPage(currentPage); }
+    };
+    paginationContainer.appendChild(nextBtn);
+}
+
+function goToPage(num, totalPages) {
+    if (isNaN(num)) return;
+    const clamped = Math.max(1, Math.min(num, totalPages));
+    if (clamped !== currentPage) {
+        currentPage = clamped;
+        displayPage(currentPage);
     }
 }
 
