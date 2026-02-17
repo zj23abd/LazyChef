@@ -33,6 +33,18 @@ const pantryOnlyToggle  = document.getElementById("pantryOnlyToggle");
 const pantryToggleLabel = document.getElementById("pantryToggleLabel");
 const activeFiltersBar  = document.getElementById("activeFiltersBar");
 
+// Favourites
+const favouritesBtn     = document.getElementById("favouritesBtn");
+const favouritesModal   = document.getElementById("favouritesModal");
+const favouritesGrid    = document.getElementById("favouritesGrid");
+const closeFavBtn       = document.querySelector(".closeFavBtn");
+
+// Prep time filter
+const prepTimeFilter    = document.getElementById("prepTimeFilter");
+
+// Loading spinner
+const loadingSpinner    = document.getElementById("loadingSpinner");
+
 // ============================================================
 // API Key
 // ============================================================
@@ -53,6 +65,74 @@ let pantryItems = JSON.parse(localStorage.getItem("lazychef_pantry") || "[]");
 function savePantry() {
     localStorage.setItem("lazychef_pantry", JSON.stringify(pantryItems));
 }
+
+// ============================================================
+// Allergen persistence
+// ============================================================
+function saveAllergens() {
+    const state = {
+        noAllergen: noAllergenCheck.checked,
+        checked: Array.from(allergenCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value)
+    };
+    localStorage.setItem("lazychef_allergens", JSON.stringify(state));
+}
+
+function loadAllergens() {
+    try {
+        const raw = localStorage.getItem("lazychef_allergens");
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        if (state.noAllergen) {
+            noAllergenCheck.checked = true;
+            allergenCheckboxes.forEach(cb => { cb.disabled = true; cb.checked = false; });
+        } else {
+            state.checked.forEach(val => {
+                const cb = document.querySelector(`#allergenGrid input[value="${val}"]`);
+                if (cb) cb.checked = true;
+            });
+        }
+    } catch { /* silent */ }
+}
+
+// ============================================================
+// Favourites state (persisted in localStorage)
+// ============================================================
+let favourites = JSON.parse(localStorage.getItem("lazychef_favourites") || "[]");
+
+function saveFavourites() {
+    localStorage.setItem("lazychef_favourites", JSON.stringify(favourites));
+}
+
+function isFavourited(id) {
+    return favourites.some(f => f.id === id);
+}
+
+function toggleFavourite(recipe) {
+    if (isFavourited(recipe.id)) {
+        favourites = favourites.filter(f => f.id !== recipe.id);
+    } else {
+        // Store just what we need to show it in the favourites modal
+        favourites.push({
+            id: recipe.id,
+            title: recipe.title,
+            image: recipe.image,
+            readyInMinutes: recipe.readyInMinutes,
+            servings: recipe.servings,
+            calories: recipe.calories || null,
+            extendedIngredients: recipe.extendedIngredients || [],
+            analyzedInstructions: recipe.analyzedInstructions || []
+        });
+    }
+    saveFavourites();
+}
+
+// ============================================================
+// Loading spinner helpers
+// ============================================================
+function showSpinner() { loadingSpinner.style.display = "flex"; }
+function hideSpinner() { loadingSpinner.style.display = "none"; }
 
 // ============================================================
 // Local fallback recipes (unchanged)
@@ -565,6 +645,7 @@ function renderActiveFilters() {
     activeFiltersBar.innerHTML = "";
     const allergens = getActiveAllergens();
     const pantryOnly = pantryOnlyToggle.checked && pantryItems.length > 0;
+    const maxTime    = parseInt(prepTimeFilter.value) || 0;
 
     allergens.forEach(a => {
         const tag = document.createElement("span");
@@ -577,6 +658,14 @@ function renderActiveFilters() {
         const tag = document.createElement("span");
         tag.className = "filterTag pantryTag";
         tag.textContent = `🧺 Pantry only (${pantryItems.length} items)`;
+        activeFiltersBar.appendChild(tag);
+    }
+
+    if (maxTime > 0) {
+        const tag = document.createElement("span");
+        tag.className = "filterTag";
+        tag.style.cssText = "background:#fff3e0;color:#e65100;border:1.5px solid #ffcc80;";
+        tag.textContent = `⏱ Under ${maxTime} mins`;
         activeFiltersBar.appendChild(tag);
     }
 }
@@ -657,21 +746,130 @@ pantryToggleBtn.addEventListener("click", () => {
     }
 });
 
+// ============================================================
+// FAVOURITES MODAL
+// ============================================================
+function renderFavouritesModal() {
+    favouritesGrid.innerHTML = "";
+
+    if (!favourites.length) {
+        favouritesGrid.innerHTML = `<div class="noFavs"><span>💔</span>No favourites yet — heart a recipe to save it here!</div>`;
+        return;
+    }
+
+    favourites.forEach(recipe => {
+        const card = document.createElement("div");
+        card.className = "favCard";
+
+        card.innerHTML = `
+            <img src="${recipe.image}" alt="${recipe.title}">
+            <p>${recipe.title}</p>
+            <button class="favRemoveBtn" title="Remove">✕</button>
+        `;
+
+        // Click card to open recipe modal
+        card.addEventListener("click", e => {
+            if (e.target.classList.contains("favRemoveBtn")) return;
+            favouritesModal.style.display = "none";
+            openRecipeModal(recipe);
+        });
+
+        // Remove from favourites
+        card.querySelector(".favRemoveBtn").addEventListener("click", e => {
+            e.stopPropagation();
+            favourites = favourites.filter(f => f.id !== recipe.id);
+            saveFavourites();
+            renderFavouritesModal();
+            // Update heart on any visible cards
+            const heartBtn = document.querySelector(`.favBtn[data-id="${recipe.id}"]`);
+            if (heartBtn) heartBtn.textContent = "🤍";
+        });
+
+        favouritesGrid.appendChild(card);
+    });
+}
+
+favouritesBtn.addEventListener("click", () => {
+    renderFavouritesModal();
+    favouritesModal.style.display = "block";
+});
+
+closeFavBtn.addEventListener("click", () => favouritesModal.style.display = "none");
+window.addEventListener("click", e => {
+    if (e.target === favouritesModal) favouritesModal.style.display = "none";
+});
+
 // "No Allergens" disables all other checkboxes
 noAllergenCheck.addEventListener("change", () => {
     allergenCheckboxes.forEach(cb => {
         cb.disabled = noAllergenCheck.checked;
         if (noAllergenCheck.checked) cb.checked = false;
     });
+    saveAllergens();
     renderActiveFilters();
 });
 
 allergenCheckboxes.forEach(cb => {
     cb.addEventListener("change", () => {
         if (cb.checked) noAllergenCheck.checked = false;
+        saveAllergens();
         renderActiveFilters();
     });
 });
+
+// ============================================================
+// OPEN RECIPE MODAL (shared by cards + favourites)
+// ============================================================
+async function openRecipeModal(recipe) {
+    try {
+        let details = recipe;
+        if (!recipe.extendedIngredients || !recipe.analyzedInstructions) {
+            const cached = loadMasterCache().find(r => r.id === recipe.id);
+            if (cached && cached.extendedIngredients) {
+                details = cached;
+            } else {
+                const res = await fetch(
+                    `https://api.spoonacular.com/recipes/${recipe.id}/information?apiKey=${API_KEY}`
+                );
+                if (res.ok) {
+                    details = await res.json();
+                    mergeIntoMasterCache([details]);
+                }
+            }
+        }
+
+        const modalCalories = details.nutrition?.nutrients?.find(n => n.name === "Calories")?.amount
+                           || details.calories || "N/A";
+
+        modalTitle.textContent = details.title;
+        modalInfo.textContent  = `Ready in ${details.readyInMinutes || "N/A"} mins | Servings: ${details.servings || "N/A"} | Calories: ${modalCalories}`;
+
+        modalIngredients.innerHTML = "";
+        if (details.extendedIngredients) {
+            details.extendedIngredients.forEach(ing => {
+                const li = document.createElement("li");
+                li.textContent = ing.original ? ing.original : ing;
+                modalIngredients.appendChild(li);
+            });
+        }
+
+        modalInstructions.innerHTML = "";
+        if (details.analyzedInstructions?.length > 0) {
+            details.analyzedInstructions[0].steps.forEach(step => {
+                const li = document.createElement("li");
+                li.textContent = step.step;
+                modalInstructions.appendChild(li);
+            });
+        } else {
+            modalInstructions.innerHTML = "<li>Instructions not available.</li>";
+        }
+
+        modal.style.display = "block";
+    } catch (error) {
+        console.error(error);
+        alert("Error loading recipe details.");
+    }
+}
 
 // ============================================================
 // PAGINATION
@@ -791,66 +989,30 @@ function displayRecipes(recipes, keywords = []) {
             matchCount = keywords.filter(k => allText.includes(k)).length;
         }
 
+        const hearted = isFavourited(recipe.id);
+
         card.innerHTML = `
             <img src="${recipe.image}" alt="${recipe.title}">
+            <button class="favBtn${hearted ? " active" : ""}" data-id="${recipe.id}" title="Save to favourites">${hearted ? "❤️" : "🤍"}</button>
             <div class="recipeInfo">
                 <h3>${recipe.title} ${matchCount ? `<span class="badge">${matchCount}</span>` : ""}</h3>
                 <p>Ready in ${prepTime} | Servings: ${recipe.servings || "N/A"} | Calories: ${calories}</p>
             </div>
         `;
 
-        card.addEventListener("click", async () => {
-            try {
-                let details = recipe;
-                if (!recipe.extendedIngredients || !recipe.analyzedInstructions) {
-                    // Try to find full details in master cache first
-                    const cached = loadMasterCache().find(r => r.id === recipe.id);
-                    if (cached && cached.extendedIngredients) {
-                        details = cached;
-                    } else {
-                        const res = await fetch(
-                            `https://api.spoonacular.com/recipes/${recipe.id}/information?apiKey=${API_KEY}`
-                        );
-                        if (res.ok) {
-                            details = await res.json();
-                            // Merge the full detail into cache
-                            mergeIntoMasterCache([details]);
-                        }
-                    }
-                }
-
-                const modalCalories = details.nutrition?.nutrients?.find(n => n.name === "Calories")?.amount
-                                   || details.calories || "N/A";
-
-                modalTitle.textContent = details.title;
-                modalInfo.textContent  = `Ready in ${details.readyInMinutes || "N/A"} mins | Servings: ${details.servings || "N/A"} | Calories: ${modalCalories}`;
-
-                modalIngredients.innerHTML = "";
-                if (details.extendedIngredients) {
-                    details.extendedIngredients.forEach(ing => {
-                        const li = document.createElement("li");
-                        li.textContent = ing.original ? ing.original : ing;
-                        modalIngredients.appendChild(li);
-                    });
-                }
-
-                modalInstructions.innerHTML = "";
-                if (details.analyzedInstructions?.length > 0) {
-                    details.analyzedInstructions[0].steps.forEach(step => {
-                        const li = document.createElement("li");
-                        li.textContent = step.step;
-                        modalInstructions.appendChild(li);
-                    });
-                } else {
-                    modalInstructions.innerHTML = "<li>Instructions not available.</li>";
-                }
-
-                modal.style.display = "block";
-            } catch (error) {
-                console.error(error);
-                alert("Error loading recipe details.");
-            }
+        // Heart button — toggle favourite without opening modal
+        card.querySelector(".favBtn").addEventListener("click", e => {
+            e.stopPropagation();
+            toggleFavourite(recipe);
+            const btn = e.currentTarget;
+            const nowFav = isFavourited(recipe.id);
+            btn.textContent = nowFav ? "❤️" : "🤍";
+            if (nowFav) btn.classList.add("active");
+            else btn.classList.remove("active");
         });
+
+        // Click card body → open modal
+        card.addEventListener("click", () => openRecipeModal(recipe));
 
         recipeContainer.appendChild(card);
     });
@@ -863,19 +1025,24 @@ function displayRecipes(recipes, keywords = []) {
 function applyFilters(recipes, keywords = []) {
     const allergens  = getActiveAllergens();
     const pantryOnly = pantryOnlyToggle.checked && pantryItems.length > 0;
+    const maxTime    = parseInt(prepTimeFilter.value) || 0;
 
     let filtered = recipes;
 
-    // 1. Allergen filter — always applied unless "No Allergens" checked
+    // 1. Allergen filter
     if (allergens.length) {
         filtered = filtered.filter(r => recipePassesAllergens(r, allergens));
     }
 
-    // 2. Pantry filter — only if toggle is on
+    // 2. Prep time filter
+    if (maxTime > 0) {
+        filtered = filtered.filter(r => r.readyInMinutes && r.readyInMinutes <= maxTime);
+    }
+
+    // 3. Pantry filter
     if (pantryOnly) {
         filtered = filtered.filter(r => recipeMatchesPantry(r, pantryItems));
     } else if (keywords.length) {
-        // Normal keyword search: sort by match count (descending)
         filtered = filtered.map(r => {
             const allText = getAllIngredientText(r);
             const matchedCount = keywords.filter(k => allText.includes(k)).length;
@@ -885,11 +1052,13 @@ function applyFilters(recipes, keywords = []) {
         .sort((a, b) => b.matchedCount - a.matchedCount)
         .map(({ recipe }) => recipe);
 
-        // If nothing matched keywords, show all allergen-filtered
         if (!filtered.length) {
             filtered = allergens.length
                 ? recipes.filter(r => recipePassesAllergens(r, allergens))
                 : recipes;
+            if (maxTime > 0) {
+                filtered = filtered.filter(r => r.readyInMinutes && r.readyInMinutes <= maxTime);
+            }
         }
     }
 
@@ -900,6 +1069,7 @@ function applyFilters(recipes, keywords = []) {
 // FETCH & CACHE RECIPES
 // ============================================================
 async function fetchRecipes(query = "") {
+    showSpinner();
     const keywords = query.toLowerCase().split(",").map(k => k.trim()).filter(k => k);
     currentKeywords = keywords;
 
@@ -994,6 +1164,7 @@ async function fetchRecipes(query = "") {
 
     currentRecipes = recipes;
     currentPage    = 1;
+    hideSpinner();
     displayPage(currentPage);
 }
 
@@ -1027,9 +1198,15 @@ randomBtn.addEventListener("click", () => {
     }
 });
 
+prepTimeFilter.addEventListener("change", () => {
+    renderActiveFilters();
+    fetchRecipes(searchInput.value.trim());
+});
+
 // ============================================================
 // INIT
 // ============================================================
+loadAllergens();
 renderPantryChips();
 renderActiveFilters();
 fetchRecipes();
