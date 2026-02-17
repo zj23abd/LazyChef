@@ -16,7 +16,7 @@ closeBtn.addEventListener("click", () => modal.style.display = "none");
 window.addEventListener("click", e => { if(e.target === modal) modal.style.display = "none"; });
 
 // --- API Key ---
-const API_KEY = "463c3f60936a40bd9679c6b82add8136";
+const API_KEY = "d0482b3e7cf3461f897080557de409ec";
 
 // --- Local fallback recipes ---
 const localRecipes = [
