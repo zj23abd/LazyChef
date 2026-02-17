@@ -19,7 +19,65 @@
         <input type="text" id="searchInput" placeholder="Enter keywords separated by commas">
         <button id="searchBtn">Search</button>
         <button id="randomBtn">Random Recipes</button>
+        <button id="allergenToggleBtn" class="sidebarToggleBtn">🚫 Allergens</button>
+        <button id="pantryToggleBtn" class="sidebarToggleBtn">🧺 Pantry</button>
     </section>
+
+    <!-- Allergen Panel -->
+    <div id="allergenPanel" class="collapsiblePanel">
+        <div class="panelInner">
+            <h3>🚫 Allergen Filter</h3>
+            <p class="panelSubtext">Tick allergens to <strong>exclude</strong> from results. Select "No Allergens" to ignore all filters.</p>
+            <label class="allergenChip noAllergen">
+                <input type="checkbox" id="noAllergenCheck"> No Allergens (ignore all)
+            </label>
+            <div id="allergenGrid" class="chipGrid">
+                <label class="allergenChip"><input type="checkbox" value="gluten"> 🌾 Gluten</label>
+                <label class="allergenChip"><input type="checkbox" value="wheat"> 🫓 Wheat</label>
+                <label class="allergenChip"><input type="checkbox" value="dairy"> 🥛 Dairy</label>
+                <label class="allergenChip"><input type="checkbox" value="milk"> 🍼 Milk</label>
+                <label class="allergenChip"><input type="checkbox" value="egg"> 🥚 Eggs</label>
+                <label class="allergenChip"><input type="checkbox" value="nut"> 🥜 Nuts</label>
+                <label class="allergenChip"><input type="checkbox" value="peanut"> 🥜 Peanuts</label>
+                <label class="allergenChip"><input type="checkbox" value="tree nut"> 🌰 Tree Nuts</label>
+                <label class="allergenChip"><input type="checkbox" value="soy"> 🫘 Soy</label>
+                <label class="allergenChip"><input type="checkbox" value="fish"> 🐟 Fish</label>
+                <label class="allergenChip"><input type="checkbox" value="shellfish"> 🦐 Shellfish</label>
+                <label class="allergenChip"><input type="checkbox" value="shrimp"> 🍤 Shrimp</label>
+                <label class="allergenChip"><input type="checkbox" value="sesame"> 🌿 Sesame</label>
+                <label class="allergenChip"><input type="checkbox" value="mustard"> 🌼 Mustard</label>
+                <label class="allergenChip"><input type="checkbox" value="celery"> 🥬 Celery</label>
+                <label class="allergenChip"><input type="checkbox" value="lupin"> 🌱 Lupin</label>
+                <label class="allergenChip"><input type="checkbox" value="molluscs"> 🦑 Molluscs</label>
+                <label class="allergenChip"><input type="checkbox" value="sulphite"> 🍷 Sulphites</label>
+                <label class="allergenChip"><input type="checkbox" value="corn"> 🌽 Corn</label>
+                <label class="allergenChip"><input type="checkbox" value="latex"> 🧤 Latex</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantry Panel -->
+    <div id="pantryPanel" class="collapsiblePanel">
+        <div class="panelInner">
+            <h3>🧺 My Pantry</h3>
+            <p class="panelSubtext">Add ingredients you currently have. Use the toggle to limit searches to only pantry items.</p>
+            <div id="pantryInputRow">
+                <input type="text" id="pantryInput" placeholder="e.g. eggs, pasta, chicken...">
+                <button id="pantryAddBtn">Add</button>
+            </div>
+            <div id="pantryChips"></div>
+            <div id="pantryToggleRow">
+                <label class="toggleSwitch">
+                    <input type="checkbox" id="pantryOnlyToggle">
+                    <span class="toggleSlider"></span>
+                </label>
+                <span id="pantryToggleLabel">Only use items in pantry</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Filters Bar -->
+    <div id="activeFiltersBar"></div>
 
     <!-- Recipes Grid -->
     <section id="recipeContainer"></section>
