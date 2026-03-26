@@ -1,3 +1,5 @@
+Author: Jaisel Saji
+
 LazyChef - A minimalist web-based recipe platform for time-constrained users.
 
 Built with HTML5, CSS3, and vanilla JavaScript. No build steps or dependencies required.
