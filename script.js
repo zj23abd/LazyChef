@@ -48,7 +48,7 @@ const loadingSpinner    = document.getElementById("loadingSpinner");
 // ============================================================
 // API Key
 // ============================================================
-const API_KEY = "d0482b3e7cf3461f897080557de409ec";
+const API_KEY = "76463530ea3a4a8db2e20642f0ddb8d2";
 
 // ============================================================
 // Storage keys & size limit
